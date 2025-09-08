@@ -7,17 +7,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run tests and build App
         run: sh ci-build-and-tests.sh
-      - name: Collect build artifacts
-        if: always()
-        run: |
-          mkdir -p arch/macos-Release
-          if [ -d "/tmp/hallelujah/build/release/hallelujah.app" ]; then
-            cp -R /tmp/hallelujah/build/release/hallelujah.app arch/macos-Release/
-          fi
-      - name: Upload artifact
+      - name: Build PKG
+        run: bash package/build-package.bash
+      - name: Upload PKG artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hallelujah-macos-Release
-          path: arch/macos-Release
+          name: hallelujah-pkg
+          path: /tmp/hallelujah-*.pkg
           retention-days: 14
