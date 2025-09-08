@@ -5,39 +5,14 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v2
-      - name: Cache CocoaPods
-        uses: actions/cache@v4
-        with:
-          path: |
-            Pods
-            ~/Library/Caches/CocoaPods
-            ~/.cocoapods
-          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-      - name: Install Pods (if needed)
+      - name: Run tests and build App
+        run: sh ci-build-and-tests.sh
+      - name: Build PKG
+        run: bash package/build-package.bash
+      - name: Rename PKG filename
         run: |
-          pod --version
-          pod install
-      - name: Build App (Release)
-        run: sh build.sh
-      - name: Run unit tests (after app build)
-        run: sh unit-tests.sh
-      - name: Build PKG (no rebuild)
-        run: |
-          set -e
-          rm -f /tmp/hallelujah-*.pkg
-          rm -rf /tmp/hallelujah/build/release/root/
-          mkdir -p /tmp/hallelujah/build/release/root
-          cp -R /tmp/hallelujah/build/release/hallelujah.app /tmp/hallelujah/build/release/root/
-          pkgbuild \
-            --info "package/PackageInfo" \
-            --root "/tmp/hallelujah/build/release/root" \
-            --identifier "github.dongyuwei.inputmethod.hallelujahInputMethod" \
-            --version $(date +"%Y%m%d%H%M%S") \
-            --install-location "/Library/Input Methods" \
-            --scripts "package/scripts" \
-            /tmp/hallelujahIM.pkg
+          PKG=$(ls /tmp/hallelujah-*.pkg | head -n1)
+          mv "$PKG" /tmp/hallelujahIM.pkg
       - name: Upload PKG artifact
         if: always()
         uses: actions/upload-artifact@v4
