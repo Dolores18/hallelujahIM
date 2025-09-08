@@ -9,10 +9,14 @@ jobs:
         run: sh ci-build-and-tests.sh
       - name: Build PKG
         run: bash package/build-package.bash
+      - name: Rename PKG filename
+        run: |
+          PKG=$(ls /tmp/hallelujah-*.pkg | head -n1)
+          mv "$PKG" /tmp/hallelujahIM.pkg
       - name: Upload PKG artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hallelujah-pkg
-          path: /tmp/hallelujah-*.pkg
+          name: hallelujahIM-pkg
+          path: /tmp/hallelujahIM.pkg
           retention-days: 14
