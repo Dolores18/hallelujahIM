@@ -5,30 +5,19 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v2
-      - name: Cache CocoaPods
-        uses: actions/cache@v3
-        with:
-          path: |
-            Pods
-            Podfile.lock
-          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-      - name: Cache DerivedData
-        uses: actions/cache@v3
-        with:
-          path: .derived_data
-          key: ${{ runner.os }}-derived-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-derived-
       - name: Run tests and build App
+        run: sh ci-build-and-tests.sh
+      - name: Collect build artifacts
+        if: always()
         run: |
-          export DERIVED_DATA_PATH=$PWD/.derived_data
-          sh ci-build-and-tests.sh
-      - name: Upload build artifacts
+          mkdir -p arch/macos-Release
+          if [ -d "/tmp/hallelujah/build/release/hallelujah.app" ]; then
+            cp -R /tmp/hallelujah/build/release/hallelujah.app arch/macos-Release/
+          fi
+      - name: Upload artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hallelujah-release-app
-          path: |
-            /tmp/hallelujah/build/release/hallelujah.app
+          name: hallelujah-macos-Release
+          path: arch/macos-Release
+          retention-days: 14
