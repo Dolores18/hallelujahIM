@@ -5,5 +5,30 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v2
+      - name: Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: |
+            Pods
+            Podfile.lock
+          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Cache DerivedData
+        uses: actions/cache@v3
+        with:
+          path: .derived_data
+          key: ${{ runner.os }}-derived-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-derived-
       - name: Run tests and build App
-        run: sh ci-build-and-tests.sh
+        run: |
+          export DERIVED_DATA_PATH=$PWD/.derived_data
+          sh ci-build-and-tests.sh
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hallelujah-release-app
+          path: |
+            /tmp/hallelujah/build/release/hallelujah.app
