@@ -483,14 +483,27 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
     // 翻译显示逻辑
     BOOL showTranslation = [preference boolForKey:@"showTranslation"];
     if (showTranslation) {
-        NSLog(@"[HallelujahIM] candidateSelectionChanged: 显示翻译，候选词='%@'", candidateString.string);
-        [self showAnnotation:candidateString];
-    }
-    
-    // 延迟模式需要更新缓冲区显示（无论翻译是否开启）
-    if (_currentMode == InputModeEnglishDelay) {
-        NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式更新缓冲区显示");
-        [self updateBufferDisplayContent];
+        if (_currentMode == InputModeEnglishDelay) {
+            // 延迟模式：获取翻译并组合显示到缓冲区窗口
+            NSString *translation = [engine getAnnotation:candidateString.string];
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式组合显示，候选词='%@'，翻译='%@'", 
+                  candidateString.string, translation ?: @"(无)");
+            
+            // 确保窗口处于缓冲区模式（如果还没有显示的话）
+            [self showBufferDisplayIfNeeded];
+            // 然后更新内容
+            [self updateBufferDisplayContentWithTranslation:translation];
+        } else {
+            // 其他模式：正常显示翻译窗口
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 标准模式显示翻译，候选词='%@'", candidateString.string);
+            [self showAnnotation:candidateString];
+        }
+    } else {
+        // 翻译功能关闭
+        if (_currentMode == InputModeEnglishDelay) {
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式，翻译关闭，仅显示缓冲区");
+            [self updateBufferDisplayContent];
+        }
     }
 }
 
