@@ -480,23 +480,11 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
 
     _insertionIndex = candidateString.length;
 
+    // 恢复原来的翻译显示逻辑：所有模式都使用相同的翻译方式
     BOOL showTranslation = [preference boolForKey:@"showTranslation"];
     if (showTranslation) {
-        if (_currentMode == InputModeEnglishDelay) {
-            // 延迟模式：在缓冲区窗口中组合显示翻译
-            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式组合显示，候选词='%@'", candidateString.string);
-            [self showBufferWithTranslation:candidateString];
-        } else {
-            // 其他模式：正常显示翻译
-            NSLog(@"[HallelujahIM] candidateSelectionChanged: 标准模式显示翻译，候选词='%@'", candidateString.string);
-            [self showAnnotation:candidateString];
-        }
-    } else {
-        // 翻译功能关闭，但如果在延迟模式下仍需更新缓冲区显示
-        if (_currentMode == InputModeEnglishDelay) {
-            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式，翻译关闭，仅显示缓冲区");
-            [self updateBufferDisplayContent]; // 不显示翻译，仅更新缓冲区
-        }
+        NSLog(@"[HallelujahIM] candidateSelectionChanged: 显示翻译，候选词='%@'", candidateString.string);
+        [self showAnnotation:candidateString];
     }
 }
 
