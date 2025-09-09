@@ -228,12 +228,7 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
         }
 
         if ([[NSCharacterSet decimalDigitCharacterSet] characterIsMember:ch]) {
-            if (!hasBufferedText) {
-                [self appendToComposedBuffer:characters];
-                [self commitCompositionWithoutSpace:sender];
-                return YES;
-            }
-
+            // 首先检查是否在选择候选词
             if (isCandidatesVisible) { // use 1~9 digital numbers as selection keys
                 int pressedNumber = characters.intValue;
                 NSLog(@"[HallelujahIM] 数字键选择候选词: 按键=%d", pressedNumber);
@@ -276,6 +271,22 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
                     [self commitComposition:sender];
                     return YES;
                 }
+            }
+            
+            // 延迟模式：所有数字都追加到缓冲区，不立即上屏
+            if (_currentMode == InputModeEnglishDelay) {
+                NSLog(@"[HallelujahIM] 数字输入-延迟模式: 追加到缓冲区，数字='%@'", characters);
+                [self originalBufferAppend:characters client:sender];
+                NSLog(@"[HallelujahIM] 数字输入-延迟模式: 缓冲后='%@'", [self originalBuffer]);
+                return YES;
+            }
+            
+            // 其他模式：原有逻辑（无缓冲时直接上屏）
+            if (!hasBufferedText) {
+                NSLog(@"[HallelujahIM] 数字输入-非延迟模式: 直接上屏，数字='%@'", characters);
+                [self appendToComposedBuffer:characters];
+                [self commitCompositionWithoutSpace:sender];
+                return YES;
             }
         }
     }
