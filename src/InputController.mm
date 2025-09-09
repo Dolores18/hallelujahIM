@@ -87,6 +87,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
         break;
     case NSEventTypeKeyDown:
         if (_currentMode == InputModeEnglishDirect) {
+            NSLog(@"[HallelujahIM] handleEvent: 纯英文模式，忽略按键 keyCode=%ld, char='%@'", 
+                  (long)event.keyCode, event.characters);
             break;
         }
 
@@ -230,9 +232,9 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
 
         if ([[NSCharacterSet decimalDigitCharacterSet] characterIsMember:ch]) {
             // 首先检查是否在选择候选词
-            if (isCandidatesVisible) { // use 1~9 digital numbers as selection keys
+            if (isCandidatesVisible && _candidates.count > 0) { // use 1~9 digital numbers as selection keys
                 int pressedNumber = characters.intValue;
-                NSLog(@"[HallelujahIM] 数字键选择候选词: 按键=%d", pressedNumber);
+                NSLog(@"[HallelujahIM] 数字键选择候选词: 按键=%d, 候选词数量=%lu", pressedNumber, (unsigned long)_candidates.count);
                 
                 NSString *candidate;
                 int pageSize = 9;
