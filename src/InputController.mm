@@ -126,7 +126,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
     // 记录关键按键和当前状态
     if (keyCode == KEY_SPACE || keyCode == KEY_RETURN || keyCode == KEY_DELETE || 
         (characters.length > 0 && ([[NSCharacterSet letterCharacterSet] characterIsMember:[characters characterAtIndex:0]] ||
-         [[NSCharacterSet punctuationCharacterSet] characterIsMember:[characters characterAtIndex:0]]))) {
+         [[NSCharacterSet punctuationCharacterSet] characterIsMember:[characters characterAtIndex:0]] ||
+         [[NSCharacterSet decimalDigitCharacterSet] characterIsMember:[characters characterAtIndex:0]]))) {
         NSString *modeString = (_currentMode == InputModeIntelligent) ? @"智能模式" : 
                               (_currentMode == InputModeEnglishDirect) ? @"纯英文模式" : @"英语延迟模式";
         NSLog(@"[HallelujahIM] 按键事件: keyCode=%ld, char='%@', 当前模式=%@, 缓冲文本='%@'", 
