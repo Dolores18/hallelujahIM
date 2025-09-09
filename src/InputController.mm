@@ -64,10 +64,14 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
             if (_currentMode == InputModeEnglishDelay) {
                 _currentMode = InputModeIntelligent;
                 NSLog(@"[HallelujahIM] 左Shift切换: 英语延迟模式 → 智能模式 (InputModeIntelligent)");
+                // 退出延迟模式时隐藏缓冲区显示
+                [self hideBufferDisplayIfNeeded];
             } else {
                 _currentMode = InputModeEnglishDelay;
                 NSLog(@"[HallelujahIM] 左Shift切换: %@ → 英语延迟模式 (InputModeEnglishDelay)", 
                       (_currentMode == InputModeIntelligent) ? @"智能模式" : @"纯英文模式");
+                // 进入延迟模式时显示缓冲区
+                [self showBufferDisplayIfNeeded];
             }
             
             // 切换模式时，如果有缓冲文本且切换到智能模式，则提交
@@ -149,6 +153,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
                 [self originalBufferAppend:@" " client:sender];
                 [self updateEnglishCandidates];
                 [sharedCandidates show:kIMKLocateCandidatesBelowHint];
+                // 更新缓冲区显示
+                [self updateBufferDisplayContent];
                 NSLog(@"[HallelujahIM] 空格键-延迟模式: 缓冲后文本='%@'", [self originalBuffer]);
                 return YES;
             } else {
@@ -172,6 +178,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
                 NSLog(@"[HallelujahIM] 回车键-延迟模式: 处理后文本='%@'", processedText);
                 [self setOriginalBuffer:processedText];
                 [self setComposedBuffer:processedText];
+                // 隐藏缓冲区显示
+                [self hideBufferDisplayIfNeeded];
                 [self commitCompositionWithoutSpace:sender];
                 NSLog(@"[HallelujahIM] 回车键-延迟模式: 文本已提交");
                 return YES;
@@ -203,6 +211,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
         if (_currentMode == InputModeEnglishDelay) {
             NSLog(@"[HallelujahIM] 字母输入-延迟模式: 使用英语候选词更新");
             [self updateEnglishCandidates];
+            // 更新缓冲区显示
+            [self updateBufferDisplayContent];
         } else {
             NSLog(@"[HallelujahIM] 字母输入-非延迟模式: 使用标准候选词更新");
             [sharedCandidates updateCandidates];
@@ -266,6 +276,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
                     NSLog(@"[HallelujahIM] 数字键-延迟模式: 替换后缓冲='%@'", [self originalBuffer]);
                     [self updateEnglishCandidates];
                     [sharedCandidates show:kIMKLocateCandidatesBelowHint];
+                    // 更新缓冲区显示
+                    [self updateBufferDisplayContent];
                     return YES;
                 } else {
                     // 其他模式：直接提交
@@ -290,6 +302,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
                 NSLog(@"[HallelujahIM] 标点-延迟模式: 缓冲后='%@'", [self originalBuffer]);
                 [self updateEnglishCandidates];
                 [sharedCandidates show:kIMKLocateCandidatesBelowHint];
+                // 更新缓冲区显示
+                [self updateBufferDisplayContent];
                 return YES;
             } else {
                 // 其他模式：提交缓冲内容+标点
@@ -382,6 +396,8 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
     [sharedCandidates setCandidateData:@[]];
     [_annotationWin setAnnotation:@""];
     [_annotationWin hideWindow];
+    // 同时隐藏缓冲区显示
+    [self hideBufferDisplayIfNeeded];
     
     NSLog(@"[HallelujahIM] reset: 重置完成");
 }
@@ -450,13 +466,37 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
 - (void)candidateSelectionChanged:(NSAttributedString *)candidateString {
     [self _updateComposedBuffer:candidateString];
 
-    [self showPreeditString:candidateString.string];
+    // 方案2：延迟模式下保持显示完整缓冲区内容，而不是单个候选词
+    if (_currentMode == InputModeEnglishDelay) {
+        // 延迟模式：继续显示原始缓冲区内容，保持上下文
+        NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式保持显示缓冲区='%@'，选中候选词='%@'", 
+              [self originalBuffer], candidateString.string);
+        [self showPreeditString:[self originalBuffer]];
+    } else {
+        // 其他模式：正常显示候选词（传统行为）
+        NSLog(@"[HallelujahIM] candidateSelectionChanged: 非延迟模式显示候选词='%@'", candidateString.string);
+        [self showPreeditString:candidateString.string];
+    }
 
     _insertionIndex = candidateString.length;
 
     BOOL showTranslation = [preference boolForKey:@"showTranslation"];
     if (showTranslation) {
-        [self showAnnotation:candidateString];
+        if (_currentMode == InputModeEnglishDelay) {
+            // 延迟模式：在缓冲区窗口中组合显示翻译
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式组合显示，候选词='%@'", candidateString.string);
+            [self showBufferWithTranslation:candidateString];
+        } else {
+            // 其他模式：正常显示翻译
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 标准模式显示翻译，候选词='%@'", candidateString.string);
+            [self showAnnotation:candidateString];
+        }
+    } else {
+        // 翻译功能关闭，但如果在延迟模式下仍需更新缓冲区显示
+        if (_currentMode == InputModeEnglishDelay) {
+            NSLog(@"[HallelujahIM] candidateSelectionChanged: 延迟模式，翻译关闭，仅显示缓冲区");
+            [self updateBufferDisplayContent]; // 不显示翻译，仅更新缓冲区
+        }
     }
 }
 
@@ -690,6 +730,88 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
     
     NSLog(@"[HallelujahIM] processEnglishText: 处理完成，结果='%@'", processedText);
     return processedText;
+}
+
+#pragma mark - 缓冲区显示功能
+
+- (void)showBufferDisplayIfNeeded {
+    if (_currentMode == InputModeEnglishDelay) {
+        NSString *bufferText = [self originalBuffer];
+        NSPoint displayPosition = [self calculateBufferDisplayPosition];
+        
+        NSLog(@"[HallelujahIM] showBufferDisplayIfNeeded: 显示缓冲区='%@'", bufferText ?: @"(空)");
+        [_annotationWin showBufferDisplay:bufferText atPoint:displayPosition];
+    }
+}
+
+- (void)updateBufferDisplayContent {
+    if (_currentMode == InputModeEnglishDelay) {
+        NSString *bufferText = [self originalBuffer];
+        NSLog(@"[HallelujahIM] updateBufferDisplayContent: 更新缓冲区='%@'", bufferText ?: @"(空)");
+        // 只更新缓冲区内容，不显示翻译（翻译设为nil）
+        [_annotationWin updateBufferDisplayWithTranslation:bufferText translation:nil];
+    }
+}
+
+- (void)hideBufferDisplayIfNeeded {
+    NSLog(@"[HallelujahIM] hideBufferDisplayIfNeeded: 当前模式=%@", 
+          _currentMode == InputModeEnglishDelay ? @"延迟模式" : @"其他模式");
+    [_annotationWin hideBufferDisplay];
+}
+
+- (NSPoint)calculateBufferDisplayPosition {
+    // 获取当前光标位置的矩形
+    NSRect lineRect;
+    [_currentClient attributesForCharacterIndex:0 lineHeightRectangle:&lineRect];
+    NSPoint cursorPoint = NSMakePoint(NSMinX(lineRect), NSMinY(lineRect));
+    
+    // 将缓冲区显示框放在光标上方
+    NSPoint displayPoint = cursorPoint;
+    displayPoint.y += 25; // 在光标上方一点的位置
+    
+    NSScreen *currentScreen = [NSScreen currentScreenForMouseLocation];
+    NSPoint screenPoint = [currentScreen convertPointToScreenCoordinates:displayPoint];
+    
+    // 确保不会超出屏幕边界
+    NSRect screenFrame = currentScreen.frame;
+    if (screenPoint.x + 200 > screenFrame.origin.x + screenFrame.size.width) {
+        screenPoint.x = screenFrame.origin.x + screenFrame.size.width - 200;
+    }
+    if (screenPoint.x < screenFrame.origin.x) {
+        screenPoint.x = screenFrame.origin.x + 10;
+    }
+    
+    NSLog(@"[HallelujahIM] calculateBufferDisplayPosition: cursor(%.1f,%.1f) -> display(%.1f,%.1f)", 
+          cursorPoint.x, cursorPoint.y, screenPoint.x, screenPoint.y);
+    
+    return screenPoint;
+}
+
+#pragma mark - 组合显示功能（缓冲区 + 翻译）
+
+- (void)showBufferWithTranslation:(NSAttributedString *)candidateString {
+    if (_currentMode == InputModeEnglishDelay) {
+        NSString *bufferText = [self originalBuffer];
+        NSString *translation = [engine getAnnotation:candidateString.string];
+        NSPoint displayPosition = [self calculateBufferDisplayPosition];
+        
+        NSLog(@"[HallelujahIM] showBufferWithTranslation: 显示缓冲区='%@', 候选词='%@', 翻译='%@'", 
+              bufferText ?: @"(空)", candidateString.string, translation ?: @"(无)");
+        
+        [_annotationWin showBufferDisplayWithTranslation:bufferText 
+                                             translation:translation 
+                                                 atPoint:displayPosition];
+    }
+}
+
+- (void)updateBufferDisplayContentWithTranslation:(NSString *)translation {
+    if (_currentMode == InputModeEnglishDelay) {
+        NSString *bufferText = [self originalBuffer];
+        NSLog(@"[HallelujahIM] updateBufferDisplayContentWithTranslation: 更新缓冲区='%@', 翻译='%@'", 
+              bufferText ?: @"(空)", translation ?: @"(无)");
+        
+        [_annotationWin updateBufferDisplayWithTranslation:bufferText translation:translation];
+    }
 }
 
 @end

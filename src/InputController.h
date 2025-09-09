@@ -36,4 +36,14 @@ typedef enum {
 - (void)replaceLastWordWith:(NSString *)candidate;
 - (NSString *)processEnglishText:(NSString *)input;
 
+// 缓冲区显示相关方法
+- (void)showBufferDisplayIfNeeded;
+- (void)updateBufferDisplayContent;
+- (void)hideBufferDisplayIfNeeded;
+- (NSPoint)calculateBufferDisplayPosition;
+
+// 组合显示相关方法（缓冲区 + 翻译）
+- (void)showBufferWithTranslation:(NSAttributedString *)candidateString;
+- (void)updateBufferDisplayContentWithTranslation:(NSString *)translation;
+
 @end
