@@ -36,6 +36,7 @@
 		F102C5AC1F4882D30005B03F /* InputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F102C5AB1F4882D30005B03F /* InputController.mm */; };
 		F109B4911E1A83AF00AA7A41 /* AnnotationWinController.m in Sources */ = {isa = PBXBuildFile; fileRef = F109B48F1E1A83AF00AA7A41 /* AnnotationWinController.m */; };
 		F1BF613D22D4DF6F003B946F /* AnnotationWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1BF613B22D4DF6F003B946F /* AnnotationWindow.xib */; };
+		5C2CE3397D314291A5283DA8 /* TextProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B04F2DCC86DF4C6DBA03077F /* TextProcessor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,8 @@
 		F109B4901E1A83AF00AA7A41 /* AnnotationWinController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnnotationWinController.h; path = src/AnnotationWinController.h; sourceTree = "<group>"; };
 		F1BF613C22D4DF6F003B946F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AnnotationWindow.xib; sourceTree = "<group>"; };
 		F1CDA2A41B55180A005086C6 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputController.h; path = src/InputController.h; sourceTree = "<group>"; };
+		A202330B9D3943AD954C3EB0 /* TextProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextProcessor.h; path = src/util/TextProcessor.h; sourceTree = "<group>"; };
+		B04F2DCC86DF4C6DBA03077F /* TextProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TextProcessor.m; path = src/util/TextProcessor.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +139,8 @@
 				F102C5AB1F4882D30005B03F /* InputController.mm */,
 				F109B4901E1A83AF00AA7A41 /* AnnotationWinController.h */,
 				F109B48F1E1A83AF00AA7A41 /* AnnotationWinController.m */,
+				A202330B9D3943AD954C3EB0 /* TextProcessor.h */,
+				B04F2DCC86DF4C6DBA03077F /* TextProcessor.m */,
 				3804D23620F2FC2A00CF1BD9 /* NSScreen+PointConversion.h */,
 				3804D23520F2FC2A00CF1BD9 /* NSScreen+PointConversion.m */,
 			);
@@ -450,6 +455,7 @@
 				389468D61F57C8CE00EF1F5E /* InputApplicationDelegate.m in Sources */,
 				F102C5AC1F4882D30005B03F /* InputController.mm in Sources */,
 				F109B4911E1A83AF00AA7A41 /* AnnotationWinController.m in Sources */,
+				5C2CE3397D314291A5283DA8 /* TextProcessor.m in Sources */,
 				381CD8C622C60D610098764F /* WebServer.m in Sources */,
 				386E1C0022DC5E9C000C6DCF /* ConversionEngine.mm in Sources */,
 			);

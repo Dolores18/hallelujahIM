@@ -63,9 +63,11 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
             
             if (_currentMode == InputModeEnglishDelay) {
                 _currentMode = InputModeIntelligent;
+                [preference setBool:NO forKey:@"englishDelayMode"];
                 NSLog(@"[HallelujahIM] 左Shift切换: 英语延迟模式 → 智能模式 (InputModeIntelligent)");
             } else {
                 _currentMode = InputModeEnglishDelay;
+                [preference setBool:YES forKey:@"englishDelayMode"];
                 NSLog(@"[HallelujahIM] 左Shift切换: %@ → 英语延迟模式 (InputModeEnglishDelay)", 
                       (_currentMode == InputModeIntelligent) ? @"智能模式" : @"纯英文模式");
             }
@@ -507,8 +509,22 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
 
     _currentCandidateIndex = 1;
     _candidates = [[NSMutableArray alloc] init];
-    _currentMode = InputModeIntelligent; // 初始化为智能模式
-    NSLog(@"[HallelujahIM] activateServer: 初始化完成，当前模式=智能模式");
+    
+    // 从preference恢复输入模式状态
+    BOOL englishDelayMode = [preference boolForKey:@"englishDelayMode"];
+    if (englishDelayMode) {
+        _currentMode = InputModeEnglishDelay;
+        NSLog(@"[HallelujahIM] activateServer: 恢复英语延迟模式");
+    } else if (_defaultEnglishMode) {
+        _currentMode = InputModeEnglishDirect;
+        NSLog(@"[HallelujahIM] activateServer: 恢复纯英文模式");
+    } else {
+        _currentMode = InputModeIntelligent;
+        NSLog(@"[HallelujahIM] activateServer: 恢复智能模式");
+    }
+    NSLog(@"[HallelujahIM] activateServer: 初始化完成，当前模式=%@", 
+          _currentMode == InputModeEnglishDelay ? @"英语延迟模式" : 
+          (_currentMode == InputModeEnglishDirect ? @"纯英文模式" : @"智能模式"));
 }
 
 - (void)deactivateServer:(id)sender {

@@ -59,7 +59,8 @@ void initPreference() {
     NSDictionary *defaultPrefs = @{
         @"commitWordWithSpace" : @YES, 
         @"showTranslation" : @YES,
-        @"textProcessorApiUrl" : @"http://localhost:3000/edit"
+        @"textProcessorApiUrl" : @"http://localhost:3000/edit",
+        @"englishDelayMode" : @NO
     };
     [preference registerDefaults:defaultPrefs];
 }
