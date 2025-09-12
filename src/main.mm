@@ -60,6 +60,7 @@ void initPreference() {
         @"commitWordWithSpace" : @YES, 
         @"showTranslation" : @YES,
         @"textProcessorApiUrl" : @"http://localhost:3000/edit",
+        @"textProcessorTimeout" : @10,
         @"englishDelayMode" : @NO
     };
     [preference registerDefaults:defaultPrefs];

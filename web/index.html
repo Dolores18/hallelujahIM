@@ -45,6 +45,17 @@
             style="width: 300px;"
           />
         </label>
+        <label>
+          Text Processor Timeout (seconds):
+          <input
+            type="number"
+            v-model.number="preference.textProcessorTimeout"
+            placeholder="10"
+            min="1"
+            max="60"
+            style="width: 100px;"
+          />
+        </label>
 
         <div class="form-footer">
           <button :disabled="loading">

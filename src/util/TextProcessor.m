@@ -123,8 +123,15 @@ extern NSUserDefaults *preference;
     
     [task resume];
     
-    // 等待请求完成，设置2秒超时
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC));
+    // 从preference获取超时时间
+    NSInteger timeoutSeconds = [preference integerForKey:@"textProcessorTimeout"];
+    if (timeoutSeconds <= 0) {
+        timeoutSeconds = 10; // 默认10秒
+    }
+    NSLog(@"[HallelujahIM] TextProcessor: 使用超时时间=%ld秒", (long)timeoutSeconds);
+    
+    // 等待请求完成
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeoutSeconds * NSEC_PER_SEC));
     if (dispatch_semaphore_wait(semaphore, timeout) != 0) {
         NSLog(@"[HallelujahIM] TextProcessor: API请求超时");
         [task cancel];

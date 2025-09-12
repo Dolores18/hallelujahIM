@@ -8,6 +8,7 @@ extern NSUserDefaults *preference;
 NSString *TRANSLATION_KEY = @"showTranslation";
 NSString *COMMIT_WORD_WITH_SPACE_KEY = @"commitWordWithSpace";
 NSString *TEXT_PROCESSOR_API_URL_KEY = @"textProcessorApiUrl";
+NSString *TEXT_PROCESSOR_TIMEOUT_KEY = @"textProcessorTimeout";
 
 
 @interface WebServer ()
@@ -49,7 +50,8 @@ static int port = 62718;
                                   @{
                                     TRANSLATION_KEY : @([preference boolForKey:TRANSLATION_KEY]),
                                     COMMIT_WORD_WITH_SPACE_KEY : @([preference boolForKey:COMMIT_WORD_WITH_SPACE_KEY]),
-                                    TEXT_PROCESSOR_API_URL_KEY : [preference stringForKey:TEXT_PROCESSOR_API_URL_KEY] ?: @"http://localhost:3000/edit"
+                                    TEXT_PROCESSOR_API_URL_KEY : [preference stringForKey:TEXT_PROCESSOR_API_URL_KEY] ?: @"http://localhost:3000/edit",
+                                    TEXT_PROCESSOR_TIMEOUT_KEY : @([preference integerForKey:TEXT_PROCESSOR_TIMEOUT_KEY])
                                    }
                                  ];
                       }];
@@ -69,6 +71,11 @@ static int port = 62718;
                           NSString *apiUrl = data[TEXT_PROCESSOR_API_URL_KEY];
                           if (apiUrl && apiUrl.length > 0) {
                               [preference setObject:apiUrl forKey:TEXT_PROCESSOR_API_URL_KEY];
+                          }
+
+                          NSNumber *timeout = data[TEXT_PROCESSOR_TIMEOUT_KEY];
+                          if (timeout && [timeout integerValue] > 0) {
+                              [preference setInteger:[timeout integerValue] forKey:TEXT_PROCESSOR_TIMEOUT_KEY];
                           }
 
                           return [GCDWebServerDataResponse responseWithJSONObject:data];
