@@ -171,7 +171,7 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
             if (_currentMode == InputModeEnglishDelay) {
                 // 英语延迟模式：提交前进行文本处理
                 NSLog(@"[HallelujahIM] 回车键-延迟模式: 开始处理文本='%@'", bufferedText);
-                NSString *processedText = [self processEnglishText:[self originalBuffer]];
+                NSString *processedText = [TextProcessor processEnglishText:[self originalBuffer]];
                 NSLog(@"[HallelujahIM] 回车键-延迟模式: 处理后文本='%@'", processedText);
                 [self setOriginalBuffer:processedText];
                 [self setComposedBuffer:processedText];
@@ -687,36 +687,6 @@ static const KeyCode KEY_RETURN = 36, KEY_SPACE = 49, KEY_DELETE = 51, KEY_ESC =
     NSLog(@"[HallelujahIM] replaceLastWordWith: 完成替换，最终buffer='%@'", [self originalBuffer]);
 }
 
-- (NSString *)processEnglishText:(NSString *)input {
-    NSLog(@"[HallelujahIM] processEnglishText: 开始处理文本='%@'", input ?: @"(空)");
-    
-    if (!input || input.length == 0) {
-        NSLog(@"[HallelujahIM] processEnglishText: 输入为空，直接返回");
-        return input;
-    }
-    
-    // 基础的文本处理：去除多余空格，首字母大写等
-    NSString *processedText = [input stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSLog(@"[HallelujahIM] processEnglishText: 去除首尾空格后='%@'", processedText);
-    
-    // 去除连续的空格
-    NSString *beforeSpaceCleanup = processedText;
-    while ([processedText containsString:@"  "]) {
-        processedText = [processedText stringByReplacingOccurrencesOfString:@"  " withString:@" "];
-    }
-    if (![beforeSpaceCleanup isEqualToString:processedText]) {
-        NSLog(@"[HallelujahIM] processEnglishText: 清理连续空格后='%@'", processedText);
-    }
-    
-    // TODO: 在这里可以集成更复杂的处理逻辑
-    // 1. 拼写检查
-    // 2. 语法纠错
-    // 3. 翻译功能
-    // 4. 智能优化
-    
-    NSLog(@"[HallelujahIM] processEnglishText: 处理完成，结果='%@'", processedText);
-    return processedText;
-}
 
 #pragma mark - 缓冲区显示功能
 

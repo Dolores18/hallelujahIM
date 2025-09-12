@@ -36,6 +36,15 @@
             v-model="preference.commitWordWithSpace"
           />
         </label>
+        <label>
+          Text Processor API URL:
+          <input
+            type="text"
+            v-model="preference.textProcessorApiUrl"
+            placeholder="http://localhost:3000/edit"
+            style="width: 300px;"
+          />
+        </label>
 
         <div class="form-footer">
           <button :disabled="loading">

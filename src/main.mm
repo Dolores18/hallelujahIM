@@ -56,7 +56,11 @@ void deactivateInputSource() {
 
 void initPreference() {
     preference = [NSUserDefaults standardUserDefaults];
-    NSDictionary *defaultPrefs = @{@"commitWordWithSpace" : @YES, @"showTranslation" : @YES};
+    NSDictionary *defaultPrefs = @{
+        @"commitWordWithSpace" : @YES, 
+        @"showTranslation" : @YES,
+        @"textProcessorApiUrl" : @"http://localhost:3000/edit"
+    };
     [preference registerDefaults:defaultPrefs];
 }
 

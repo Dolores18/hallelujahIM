@@ -4,7 +4,8 @@ var app = new Vue({
     loading: false,
     preference: {
       showTranslation: true,
-      commitWordWithSpace: true
+      commitWordWithSpace: true,
+      textProcessorApiUrl: "http://localhost:3000/edit"
     }
   },
   methods: {

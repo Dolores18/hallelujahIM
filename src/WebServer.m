@@ -7,6 +7,7 @@ extern NSUserDefaults *preference;
 
 NSString *TRANSLATION_KEY = @"showTranslation";
 NSString *COMMIT_WORD_WITH_SPACE_KEY = @"commitWordWithSpace";
+NSString *TEXT_PROCESSOR_API_URL_KEY = @"textProcessorApiUrl";
 
 
 @interface WebServer ()
@@ -47,7 +48,8 @@ static int port = 62718;
                           return [GCDWebServerDataResponse responseWithJSONObject:
                                   @{
                                     TRANSLATION_KEY : @([preference boolForKey:TRANSLATION_KEY]),
-                                    COMMIT_WORD_WITH_SPACE_KEY : @([preference boolForKey:COMMIT_WORD_WITH_SPACE_KEY])
+                                    COMMIT_WORD_WITH_SPACE_KEY : @([preference boolForKey:COMMIT_WORD_WITH_SPACE_KEY]),
+                                    TEXT_PROCESSOR_API_URL_KEY : [preference stringForKey:TEXT_PROCESSOR_API_URL_KEY] ?: @"http://localhost:3000/edit"
                                    }
                                  ];
                       }];
@@ -63,6 +65,11 @@ static int port = 62718;
 
                           bool commitWordWithSpace = [data[COMMIT_WORD_WITH_SPACE_KEY] boolValue];
                           [preference setBool:commitWordWithSpace forKey:COMMIT_WORD_WITH_SPACE_KEY];
+
+                          NSString *apiUrl = data[TEXT_PROCESSOR_API_URL_KEY];
+                          if (apiUrl && apiUrl.length > 0) {
+                              [preference setObject:apiUrl forKey:TEXT_PROCESSOR_API_URL_KEY];
+                          }
 
                           return [GCDWebServerDataResponse responseWithJSONObject:data];
                       }];

@@ -3,6 +3,7 @@
 
 #import "AnnotationWinController.h"
 #import "ConversionEngine.h"
+#import "util/TextProcessor.h"
 
 typedef enum {
     InputModeIntelligent,    // 智能模式（当前）
@@ -34,7 +35,6 @@ typedef enum {
 - (void)updateEnglishCandidates;
 - (NSString *)getLastWordFromBuffer:(NSString *)buffer;
 - (void)replaceLastWordWith:(NSString *)candidate;
-- (NSString *)processEnglishText:(NSString *)input;
 
 // 缓冲区显示相关方法
 - (void)showBufferDisplayIfNeeded;
